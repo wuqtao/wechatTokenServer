@@ -1,0 +1,33 @@
+#这是一个toml配置示例
+#微信过期时间更新单位秒(s)
+AheadTime = 600
+
+#循环检测微信accesstoken是否过期的间隔秒(s)
+LoopTime = 60
+
+#日志文件地址
+LogFile = "/tmp/wechatman.log"
+
+#服务器监听端口
+Port = 9999
+
+#管理员ip地址，该地址可以请求配置文件重载等高权限操作,不配置的话，自动添加127.0.0.1到名单
+AdminIpList = ["127.0.0.1"]
+AdminToken = "adminToken"
+
+#请求查询和更新时是否使用ip白名单，不启用则接受来自所有ip的查询请求
+UseIpWhiteList = false
+
+#普通请求的ip白名单,如果启用ip白名单，但是白名单列表为空，自动添加127.0.0.1到白名单
+IpList = ["127.0.0.1"]
+
+#下面是微信公众号或者小程序的相关配置，支持配置多个，token为查询accetoken时带过来的token参数,例如getaccesstoken?id=&token=
+[[Wechat]]
+"AppID" = ""
+"AppSecret" = ""
+"Token" = "wechatman"
+
+[[Wechat]]
+"AppID" = ""
+"AppSecret" = ""
+"Token" = "wechatman"
