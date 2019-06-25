@@ -29,7 +29,7 @@ func main(){
 		log.Panicln("config file error:"+err.Error())
 	}
 
-	file,err := os.Open(conf.LogFile)
+	file,err := os.OpenFile(conf.LogFile,os.O_CREATE | os.O_APPEND | os.O_RDWR,0666)
 	if err != nil{
 		log.Println("open log file error "+err.Error())
 	}else{
