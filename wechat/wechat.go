@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/tidwall/gjson"
 	"github.com/valyala/fasthttp"
+	"log"
 	"strconv"
 	"sync"
 	"time"
@@ -56,24 +57,26 @@ func (wa *WechatApp) UpdateAccessToken(wg *sync.WaitGroup){
 	if jre.Get("access_token").Exists(){
 		wa.locker.Lock()
 		wa.accessToken = jre.Get("access_token").String()
-		fmt.Println(wa.WechatConfig.AppID+":"+wa.accessToken)
+		log.Println(wa.WechatConfig.AppID+":"+wa.accessToken)
 		num,err := strconv.Atoi(jre.Get("expires_in").String())
 		if err == nil{
 			num = num-wa.aheadTime  //提前一定时间去更新
 			wa.duration = time.Second*time.Duration(num)
 			wa.updateTime = nowTime
 		}else{
+			log.Println("prase accesstoken expire error "+err.Error())
 			wa.duration = time.Nanosecond
 			wa.updateTime = nowTime
 		}
 		wa.locker.Unlock()
 	}else{
+		log.Println("request accesstoken error"+string(resp))
 		errcode := int(jre.Get("errcode").Int())
 		errmsg := GetErrorMsg(errcode)
 		if errmsg == ERROR_UNKONWN{
 			errmsg = jre.Get("errmsg").String()
 		}
-		fmt.Println(strconv.Itoa(errcode)+":"+errmsg)
+		log.Println(strconv.Itoa(errcode)+":"+errmsg)
 	}
 	wg.Done()
 }
@@ -117,7 +120,7 @@ func (wm *WechatMan) loopAccessToken(stopCh <-chan int){
 	loopChan := make(chan int,1)
 	stopLoop := make(chan int,1)
 	go func(){
-		fmt.Println("send signal routine start")
+		log.Println("send signal routine start")
 	loopsig:
 		for{
 			select{
@@ -128,17 +131,17 @@ func (wm *WechatMan) loopAccessToken(stopCh <-chan int){
 					time.Sleep(time.Second*time.Duration(wm.loopTime))
 			}
 		}
-		fmt.Println("send signal routine end")
+		log.Println("send signal routine end")
 	}()
 	go func(){
-		fmt.Println("loop routine start")
+		log.Println("loop routine start")
 loop:
 		for{
 			//此处使用两个chan保证第一时间接收信号，如果使用default:time.sleep()会阻断ch消息接收，
 			//使用两个ch可以保证消息第一时间接收
 			select{
 				case <-stopCh://此处接收到消息后，wm.stop方法即返回不会阻塞后续流程，此处的退出流程无需考虑时效性
-					fmt.Println("loop routine end")
+					log.Println("loop routine end")
 					//收到stopCh信号后，此处将退出，如果不通知发送轮训信号的携程，那个携程将一直阻塞在发送消息状态
 					//虽然发送方使用了time.sleep，但是这里不要求时效性，只要保证携程能够结束不一直阻塞即可
 					stopLoop<-1
@@ -259,7 +262,7 @@ func (wm *WechatMan) Rebuild(aheadTime,loopTime int,wxconfs ...*WechatConfig) er
 	}
 	wm.Unlock()
 	wm.Run()
-	fmt.Println("reload success "+time.Now().String())
+	log.Println("reload success "+time.Now().String())
 	return nil
 }
 

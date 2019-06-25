@@ -5,6 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"github.com/valyala/fasthttp"
+	"log"
+	"os"
 	"strconv"
 	"time"
 	"wechatman/config"
@@ -16,17 +18,25 @@ var test bool
 func init(){
 	flag.StringVar(&configFile,"conf","./wechatman.toml","assign the config file path")
 	flag.BoolVar(&test,"test",false,"is test config file")
+
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 }
 
 func main(){
 	flag.Parse()
 	conf,err := config.LoadConfig(configFile)
 	if err != nil{
-		fmt.Println("config file error:"+err.Error())
-		return
+		log.Panicln("config file error:"+err.Error())
 	}
+
+	file,err := os.Open(conf.LogFile)
+	if err != nil{
+		log.Println("open log file error "+err.Error())
+	}else{
+		log.SetOutput(file)
+	}
+
 	config.GetConfigMan().SetConfig(conf)
-	conf = config.GetConfigMan().GetConfig()
 	//测试配置文件成功
 	if test{
 		fmt.Println("config file is right")
@@ -35,31 +45,29 @@ func main(){
 
 	wechatman,err := wechat.BuildWechatMan(conf.GetAheadTime(),conf.GetLoopTime(),conf.GetWechatConfigs()...)
 	if err != nil{
-		fmt.Println(err.Error())
-		return
+		log.Panicln("get wehcatman error "+err.Error())
 	}
-	wechatman.Run()
-
+	err = wechatman.Run()
 	if err != nil{
-		fmt.Println(err.Error())
-		return
+		log.Panicln("wechatman run error "+err.Error())
 	}
+
 	err = fasthttp.ListenAndServe(":"+strconv.Itoa(conf.GetPort()),requesthandler)
 	if err != nil{
-		fmt.Println(err.Error())
+		log.Panicln("fasthttp error "+err.Error())
 		return
 	}
-	fmt.Println("server start success bind port "+strconv.Itoa(conf.GetPort()))
 }
 
 type Result struct{
 	AccessToken string `json:"accessToken"`
 	Msg string         `json:"msg"`
-	ServerTime int64	   `json:"serverTime"`
-	ExpireAt   int64     `json:"expireAt"`
+	ServerTime int64   `json:"serverTime"`
+	ExpireAt   int64   `json:"expireAt"`
 }
 
 func requesthandler(ctx *fasthttp.RequestCtx){
+	log.Println(ctx.RemoteIP().String()+" request "+ctx.URI().String())
 	if !ctx.IsGet(){
 		ctx.Response.SetBody([]byte("only get supported"))
 		return
@@ -78,24 +86,29 @@ func requesthandler(ctx *fasthttp.RequestCtx){
 
 			appid := ctx.QueryArgs().Peek("appid")
 			token := ctx.QueryArgs().Peek("token")
+
 			result := Result{
 				ServerTime:time.Now().Unix(),
 			}
+
 			wechatman,err := wechat.GetWechatMan()
 			if err != nil{
-				fmt.Println(err.Error())
-				return
+				log.Panicln("get wechatman error "+err.Error())
 			}
 			accessToken,expireAt,err := wechatman.QueryAccessToken(string(appid),string(token))
 			if err != nil{
+				log.Println(string(appid)+"query accesstoken error "+err.Error())
 				result.Msg = err.Error()
 			}else{
+				log.Println(string(appid)+"query accesstoken success")
 				result.Msg = "success"
 			}
+
 			result.ExpireAt = expireAt
 			result.AccessToken = accessToken
 			res,err := json.Marshal(result)
 			if err !=nil{
+				log.Panicln("marshal error"+err.Error())
 				ctx.Response.SetBody([]byte(err.Error()))
 			}else{
 				ctx.Response.SetBody(res)
@@ -118,14 +131,16 @@ func requesthandler(ctx *fasthttp.RequestCtx){
 
 			wechatman,err := wechat.GetWechatMan()
 			if err != nil{
-				fmt.Println(err.Error())
+				log.Panicln("get wechatman error "+err.Error())
 				return
 			}
 			_,_,err = wechatman.QueryAccessToken(string(appid),string(token))
 			if err != nil{
+				log.Println(string(appid)+"update accesstoken error "+err.Error())
 				ctx.Response.SetBody([]byte("{\"msg\":\""+err.Error()+"\"}"))
 				return
 			}
+			log.Println(string(appid)+"update success")
 			wechatman.ForceRefreshAccessToken(string(appid))
 			ctx.Response.SetBody([]byte("{\"msg\":\"success\"}"))
 
@@ -156,17 +171,17 @@ func requesthandler(ctx *fasthttp.RequestCtx){
 		config.GetConfigMan().SetConfig(conf)
 		wechatMan,err := wechat.GetWechatMan()
 		if err != nil {
+			log.Panicln("get wechatman error "+err.Error())
 			ctx.Response.SetBody([]byte(err.Error()))
 			return
 		}
 
 		go func (){
-			fmt.Println("reload request: "+time.Now().String())
 			err = wechatMan.Rebuild(conf.GetAheadTime(),conf.GetLoopTime(),conf.GetWechatConfigs()...)
 			if err != nil{
-				fmt.Println("rebuild error "+err.Error())
-				return
+				log.Panicln("rebuild error "+err.Error())
 			}
+			log.Println("reload success")
 		}()
 		ctx.Response.SetBody([]byte("config is reloading"))
 		break
@@ -189,6 +204,7 @@ func QueryIpAuth(ip string) bool{
 		}
 	}
 	conf.RUnlock()
+	log.Println(ip+"not in ip list")
 	return false
 }
 
@@ -203,6 +219,7 @@ func ReloadIpAuth(ip string) bool{
 		}
 	}
 	conf.RUnlock()
+	log.Println(ip+"not in admin ip list")
 	return false
 }
 
