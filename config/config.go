@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"errors"
 	"sync"
-	"wechatTokenServer/wechat"
+	"github.com/dbldqt/wechatTokenServer/wechat"
 )
 
 var configMan ConfigMan

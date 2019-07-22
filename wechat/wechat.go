@@ -1,8 +1,9 @@
 package wechat
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
+	"github.com/dbldqt/util"
 	"github.com/tidwall/gjson"
 	"github.com/valyala/fasthttp"
 	"log"
@@ -19,6 +20,7 @@ type WechatConfig struct {
 	AppID string          //微信appid
 	AppSecret string      //微信appsecret
 	Token string          //查询校验token
+	NotifyUrl []string	  //accessToken更新后的通知url
 }
 //定义微信应用，每个微信配置看做不同的应用
 type WechatApp struct {
@@ -65,8 +67,23 @@ func (wa *WechatApp) UpdateAccessToken(wg *sync.WaitGroup){
 			wa.updateTime = nowTime
 		}else{
 			log.Println("prase accesstoken expire error "+err.Error())
+			num = 0
 			wa.duration = time.Nanosecond
 			wa.updateTime = nowTime
+		}
+		for _,url := range wa.WechatConfig.NotifyUrl{
+			if url != ""{
+				go func(){
+					_,err := util.PostFiles(url,map[string]string{
+						"accessToken":wa.accessToken,
+						"updateTime":strconv.FormatInt(wa.updateTime.Unix(),10),
+						"expires_in":strconv.Itoa(num),
+					})
+					if err != nil{
+						log.Println("notify accessToken update err url:"+url+err.Error())
+					}
+				}()
+			}
 		}
 		wa.locker.Unlock()
 	}else{

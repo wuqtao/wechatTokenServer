@@ -9,8 +9,8 @@ import (
 	"os"
 	"strconv"
 	"time"
-	"wechatman/config"
-	"wechatman/wechat"
+	"github.com/dbldqt/wechatTokenServer/config"
+	"github.com/dbldqt/wechatTokenServer/wechat"
 )
 var configFile string
 var test bool

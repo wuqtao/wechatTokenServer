@@ -23,11 +23,13 @@ IpList = ["127.0.0.1"]
 
 #下面是微信公众号或者小程序的相关配置，支持配置多个，token为查询accetoken时带过来的token参数,例如getaccesstoken?id=&token=
 [[Wechat]]
-"AppID" = ""
-"AppSecret" = ""
-"Token" = "wechatman"
+"AppID" = ""                 #微信公众号或者小程序的appid
+"AppSecret" = ""             #appsecret
+"Token" = "wechatman"        #查询accessToken时提供的认证参数
+"NotifyUrl" = []             #该微信accessToken更新后，会请求该url列表中的地址
 
 [[Wechat]]
 "AppID" = ""
 "AppSecret" = ""
 "Token" = "wechatman"
+"NotifyUrl" = []
