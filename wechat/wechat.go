@@ -195,7 +195,9 @@ func (wm *WechatMan) refreshAccessToken(){
 	for _,app := range wm.apps{
 		if app != nil{
 			app.locker.RLock()
-			if time.Since(app.updateTime) >= app.duration{
+			if time.Since(app.updateTime) >= app.duration &&
+							 app.WechatConfig.Token != "" &&
+							 app.WechatConfig.AppSecret != ""{
 				//此处为了多个微信公众号时提高更新效率，启用子进程更新，
 				//由于外层有加锁和解锁操作，所以需要使用wg同步进程状态
 				wg.Add(1)
