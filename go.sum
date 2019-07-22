@@ -2,8 +2,8 @@ github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/dbldqt/util v0.0.0-20190722033130-a933b0555437 h1:5cJI6dnLs8KIOFbwwGtSHRSd86jqOOgabbhnafScGWQ=
-github.com/dbldqt/util v0.0.0-20190722033130-a933b0555437/go.mod h1:Roj8IDCO+bgodeq4y1lcg2dZ3b7JRGBk7ipe6e/aBVk=
+github.com/dbldqt/util v0.0.0-20190722064201-8ac74f65516d h1:OEomX8yxxh56EajXpvFrh4DCrXNu3CV3DyItaTH+D3E=
+github.com/dbldqt/util v0.0.0-20190722064201-8ac74f65516d/go.mod h1:m1IpQvJfQMhsNIwzjC++LOqGhIwkgZrPeda7djDqECQ=
 github.com/klauspost/compress v1.4.0 h1:8nsMz3tWa9SWWPL60G1V6CUsf4lLjWLTNEtibhe8gh8=
 github.com/klauspost/compress v1.4.0/go.mod h1:RyIbtBH6LamlWaDj8nUwkbUhJ87Yi3uG0guNDohfE1A=
 github.com/klauspost/cpuid v0.0.0-20180405133222-e7e905edc00e h1:+lIPJOWl+jSiJOc70QXJ07+2eg2Jy2EC7Mi11BWujeM=

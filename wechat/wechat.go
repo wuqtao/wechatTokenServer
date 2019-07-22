@@ -74,7 +74,7 @@ func (wa *WechatApp) UpdateAccessToken(wg *sync.WaitGroup){
 		for _,url := range wa.WechatConfig.NotifyUrl{
 			if url != ""{
 				go func(){
-					_,err := util.PostFiles(url,map[string]string{
+					_,err := util.PostFields(url,map[string]string{
 						"accessToken":wa.accessToken,
 						"updateTime":strconv.FormatInt(wa.updateTime.Unix(),10),
 						"expires_in":strconv.Itoa(num),

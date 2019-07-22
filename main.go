@@ -16,7 +16,7 @@ var configFile string
 var test bool
 
 func init(){
-	flag.StringVar(&configFile,"conf","./wechatman.toml","assign the config file path")
+	flag.StringVar(&configFile,"conf","./config.toml","assign the config file path")
 	flag.BoolVar(&test,"test",false,"is test config file")
 
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
