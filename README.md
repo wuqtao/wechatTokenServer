@@ -1,4 +1,4 @@
-# wechatman
+# wechatTokenServer
 基于fasthttp的微信开发者方便使用的accesstoken管理工具，无需配置redis或者memcached等工具，程序内部自持并保证定时更新accesstoken   
 1.接口/query?appid=&token=,提供接口查询最新有效的accesstoken   
 2.接口/update?appid=&token,强制更新某appid的accesstoken    
