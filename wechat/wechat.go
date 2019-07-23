@@ -31,6 +31,7 @@ type WechatApp struct {
 	duration     time.Duration
 	aheadTime int
 	deleted bool
+	needUpdate bool
 }
 
 func (wa *WechatApp)GetAccessToken() string{
@@ -58,6 +59,7 @@ func (wa *WechatApp) UpdateAccessToken(wg *sync.WaitGroup){
 	jre := gjson.Parse(string(resp))
 	if jre.Get("access_token").Exists(){
 		wa.locker.Lock()
+		wa.needUpdate = false
 		wa.accessToken = jre.Get("access_token").String()
 		log.Println(wa.WechatConfig.AppID+":"+wa.accessToken)
 		num,err := strconv.Atoi(jre.Get("expires_in").String())
@@ -196,7 +198,7 @@ func (wm *WechatMan) refreshAccessToken(){
 	for _,app := range wm.apps{
 		if app != nil{
 			app.locker.RLock()
-			if time.Since(app.updateTime) >= app.duration &&
+			if app.needUpdate || time.Since(app.updateTime) >= app.duration &&
 							 app.WechatConfig.Token != "" &&
 							 app.WechatConfig.AppSecret != ""{
 				//此处为了多个微信公众号时提高更新效率，启用子进程更新，
@@ -268,7 +270,10 @@ func (wm *WechatMan) Rebuild(aheadTime,loopTime int,wxconfs ...*WechatConfig) er
 			if wxconf.AppID == app.WechatConfig.AppID{
 				isNew = false
 				app.aheadTime = aheadTime
-				app.WechatConfig.AppSecret = wxconf.AppSecret
+				if (app.WechatConfig.AppSecret != wxconf.AppSecret){
+					app.WechatConfig.AppSecret = wxconf.AppSecret
+					app.needUpdate = true
+				}
 				app.WechatConfig.Token = wxconf.Token
 				app.locker.Unlock()
 				break

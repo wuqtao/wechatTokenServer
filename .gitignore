@@ -1,8 +1,5 @@
 .idea
-.idea/
 *.exe
 config.toml
-wechatman.toml
-./wechatman.toml
-./config.toml
-wechatman
+wechatTokenServer.toml
+wechatTokenServer
