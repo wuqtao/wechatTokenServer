@@ -26,7 +26,7 @@ IpList = ["127.0.0.1"]
 "AppID" = ""                 #微信公众号或者小程序的appid
 "AppSecret" = ""             #appsecret
 "Token" = "wechatman"        #查询accessToken时提供的认证参数
-"NotifyUrl" = []             #该微信accessToken更新后，会请求该url列表中的地址
+"NotifyUrl" = []             #该微信accessToken更新后，会请求该url列表中的地址,url需要带上http或者https协议头
 
 [[Wechat]]
 "AppID" = ""
